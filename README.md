@@ -443,6 +443,7 @@ class ApiClient {
 ## 7. UML-схема
 
 ![UML-схема](./src/images/uml.png)
+
 Описание:
 - View – отвечает за рендеринг интерфейса.  
 - Presenter – связывает View и Model.  
