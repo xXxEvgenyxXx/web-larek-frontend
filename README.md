@@ -518,19 +518,24 @@ class ApiClient {
 
 
 
-## 9. Инструкция по запуску
-1. Установить зависимости:
-   ```sh
-   npm install
-   ```
-2. 1.  Создать `.env` файл в корне проекта:
-    
-        API_ORIGIN=https://larek-api.nomoreparties.co
-    
-3. Запустить проект в режиме разработки:
-   ```sh
-   npm run start
-   ```
-4. Открыть `http://localhost:1234` в браузере.
+## 9. Установка и запуск
+Для установки и запуска проекта необходимо выполнить команды
+```
+npm install
+npm run start
+```
+или
+```
+yarn
+yarn start
+```
 
+## Сборка
+```
+npm run build
+```
+или
+```
+yarn build
+```
 
