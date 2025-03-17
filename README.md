@@ -59,19 +59,25 @@
 4. EventBroker – реализует паттерн "Наблюдатель" и управляет событиями в системе.
 
 ### 2.2 Взаимодействие компонентов
-- Model обновляет данные и генерирует события, на которые реагирует **View**.
-- View отправляет события в Presenter.
-- Presenter обновляет Model и инициирует события через EventBroker.
-- EventBroker распространяет события между компонентами, обеспечивая реактивность приложения.
+- Model хранит и управляет бизнес-данными, взаимодействует с сервером и генерирует события через EventBroker.
+- View отображает данные, генерирует пользовательские события и реагирует на изменения данных, не храня состояние внутри.
+- Presenter связывает Model и View, слушает события от View и изменяет данные в Model.
+- EventBroker управляет подпиской и генерацией событий для слабой связанности компонентов.
 
 ## 3. Экраны, Компоненты, Классы
 
 ### 3.1 Экраны
 
-- Главная страница: отображает каталог товаров, модальное окно товара, кнопку для перехода в корзину.
-- Корзина: содержит список товаров, кнопки управления количеством, кнопку оформления заказа.
-- Оформление заказа: два этапа – ввод адреса, затем ввод email и телефона, выбор метода оплаты.
-- Подтверждение заказа**: отображает итоговый заказ, подтверждает оплату, отправляет уведомление.
+- Главная страница: отображает каталог товаров (`CatalogView`), модальное окно товара (`ModalWindow`), кнопку для перехода в корзину со счётчиком товаров (`HeaderView`).
+- Каталог товаров (`CatalogView`): список товаров, фильтрация и сортировка.
+- Корзина (`CartView`): содержит список товаров, кнопки управления количеством, кнопку оформления заказа.
+- Оформление заказа: два этапа – ввод адреса (`AddressForm`), затем ввод email и телефона (`CustomerInfoForm`), выбор метода оплаты.
+- Подтверждение заказа: отображает итоговый заказ, подтверждает оплату, отправляет уведомление.
+- Модальные окна (`ModalWindow`): отображение детальной информации о товаре и других данных.
+- Уведомления (`Notification`): показывают ошибки, успехи, предупреждения.
+- Ошибка / загрузка (`ErrorView`, `LoadingView`): обработка ошибок и индикатор загрузки данных.
+
+
 
 ### 3.2 Компоненты
 
@@ -113,15 +119,35 @@ interface Cart {
 ```ts
 interface Order {
   id: string;
-  items: string[]; // ID товаров
   paymentMethod: 'card' | 'cash';
   deliveryAddress: string;
   customerEmail: string;
   customerPhone: string;
   timestamp: string;
+    
+  validateOrder(): string | null; // Проверяет корректность введённых данных
+  createOrderToPost(items: string[], total: number): OrderToPost;
+}
+
+interface OrderToPost {
+  payment: 'card' | 'cash';
+  address: string;
+  email: string;
+  phone: string;
+  total: number;
+  items: string[];
+}
+
+validateOrder(): string | null {
+  if (!this.deliveryAddress) return 'Введите адрес доставки';
+  if (!this.customerEmail.includes('@')) return 'Введите корректный email';
+  if (!this.customerPhone.match(/^\+7[0-9]{10}$/)) return 'Введите корректный номер телефона';
+  if (!['card', 'cash'].includes(this.paymentMethod)) return 'Выберите корректный способ оплаты';
+  return null;
 }
 ```
-Назначение: Хранение информации о заказе.
+Назначение: Хранение информации о заказе и его валидация. Генерация данных для отправки на сервер происходит отдельно методом createOrderToPost.
+
 ##### 3.3.1.4 Модель каталога товаров
 ```ts
 interface Catalog {
@@ -136,27 +162,64 @@ interface Catalog {
 ##### 3.3.2.1 ProductCard (Карточка товара)
 ```ts
     class ProductCard {
-      constructor(private product: Product) {}
-      render(): HTMLElement {}
+      render(product: Product): HTMLElement {}
     }
 
 ```
 Назначение: Отображает товар.
 
 ##### 3.3.2.2 CartView (Отображение корзины)
-```
-    class CartView {
-      render(cart: Cart): HTMLElement {}
-    }
+```ts
+class CartView {
+  private cartContainer: HTMLElement;
+  private totalContainer: HTMLElement;
+
+  constructor(cartContainerSelector: string, totalContainerSelector: string) {
+    this.cartContainer = document.querySelector(cartContainerSelector)!;
+    this.totalContainer = document.querySelector(totalContainerSelector)!;
+  }
+
+  render(cart: Cart): void {
+    this.cartContainer.innerHTML = "";
+    cart.items.forEach((product) => {
+      const productElement = document.createElement("div");
+      productElement.classList.add("cart-item");
+      productElement.innerHTML = `
+        <span>${product.title} - ${product.price ?? "Бесценно"}</span>
+        <button class="remove-item" data-id="${product.id}">Удалить</button>
+      `;
+      this.cartContainer.appendChild(productElement);
+    });
+    this.updateTotal(cart);
+  }
+
+  updateTotal(cart: Cart): void {
+    const total = cart.items.reduce((sum, product) => sum + (product.price ?? 0), 0);
+    this.totalContainer.textContent = `Итого: ${total} синапсов`;
+  }
+
+  bindRemoveHandler(handler: (productId: string) => void): void {
+    this.cartContainer.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      if (target.classList.contains("remove-item")) {
+        const productId = target.dataset.id!;
+        handler(productId);
+      }
+    });
+  }
+}
 ```
 Назначение: Отображает корзину.
 
-##### 3.3.2.3 OrderForm (Форма заказа)
-```
-    class OrderForm {
-      render(): HTMLElement {}
-    }
+##### 3.3.2.3 OrderForm (Форма заказа в двух представлениях)
+```ts
+class AddressForm {
+  render(): HTMLElement; // возвращает форму для ввода адреса и выбора метода оплаты
+}
 
+class CustomerInfoForm {
+  render(): HTMLElement; // возвращает форму для ввода email и телефона
+}
 ```
 Назначение: Форма оформления заказа.
 
@@ -164,11 +227,7 @@ interface Catalog {
 ##### 3.3.2.4 CatalogProductCard (карточка товара в каталоге):
 ```ts
 class CatalogProductCard {
-  product: Product;
-
-  constructor(product: Product) {}
-
-  render(): HTMLElement; // Возвращает карточку с краткой информацией.
+  render(product: Product): HTMLElement; // возвращает карточку с краткой информацией
 }
 
 ```
@@ -178,11 +237,7 @@ class CatalogProductCard {
 ##### 3.3.2.5 ModalProductCard (карточка товара в модальном окне):
 ```ts
 class ModalProductCard {
-  product: Product;
-
-  constructor(product: Product) {}
-
-  render(): HTMLElement; // Возвращает карточку с полной информацией и кнопкой добавления/удаления из корзины.
+  render(product: Product): HTMLElement; // возвращает полную информацию о товаре с кнопкой добавления в корзину
 }
 
 ```
@@ -191,11 +246,7 @@ class ModalProductCard {
 ##### 3.3.2.6 CartProductCard (карточка товара в корзине):
 ```ts
 class CartProductCard {
-  product: Product;
-
-  constructor(product: Product) {}
-
-  render(): HTMLElement; // Возвращает карточку в корзине с кнопкой удаления.
+  render(product: Product): HTMLElement; // возвращает карточку в корзине с кнопкой удаления
 }
 
 ```
@@ -207,15 +258,131 @@ class HeaderView {
   cartButton: HTMLElement;
   itemCountBadge: HTMLElement;
 
-  constructor(cartButtonSelector: string, itemCountSelector: string) {}
+  constructor(cartButtonSelector: string, itemCountSelector: string) {
+    this.cartButton = document.querySelector(cartButtonSelector)!;
+    this.itemCountBadge = document.querySelector(itemCountSelector)!;
+  }
 
-  renderItemCount(count: number): void; // Обновляет счетчик товаров в корзине.
-  bindCartButtonClick(handler: () => void): void; // Привязывает обработчик клика для открытия корзины.
+  render(): HTMLElement {
+    const header = document.createElement("header");
+    header.innerHTML = `
+      <button id="cart-btn">Корзина</button>
+      <span id="cart-count">0</span>
+    `;
+    return header;
+  }
+
+  renderItemCount(count: number): void {
+    this.itemCountBadge.textContent = count.toString();
+  }
+
+  bindCartButtonClick(handler: () => void): void {
+    this.cartButton.addEventListener("click", handler);
+  }
 }
 ```
-Назначение: отображение товара в корзине, упрощенный вид, кнопка удаления.
 
+##### 3.3.2.8 CatalogView (общее представление страницы каталога)
+```ts
+class CatalogView {
+    render(products: Product[]): HTMLElement {
+        // Рендерит список карточек товаров
+    }
+}
+```
+Назначение: отвечает за отображение списка товаров на главной странице.
 
+##### 3.3.2.8 ModalWindow (Модальное окно)
+
+```ts
+class ModalWindow {
+  private container: HTMLElement;
+  private content: HTMLElement;
+  
+  constructor() {
+    this.container = document.createElement('div');
+    this.container.classList.add('modal-container');
+    this.content = document.createElement('div');
+    this.content.classList.add('modal-content');
+    this.container.appendChild(this.content);
+
+    this.container.addEventListener('click', (event) => {
+      if (event.target === this.container) {
+        this.close();
+      }
+    });
+  }
+
+  render(content: HTMLElement): void {
+    this.content.innerHTML = '';
+    this.content.appendChild(content);
+    document.body.appendChild(this.container);
+  }
+
+  close(): void {
+    if (this.container.parentElement) {
+      document.body.removeChild(this.container);
+    }
+  }
+}
+```
+
+- `render(content: HTMLElement): HTMLElement` – отображает переданный контент.
+- `close()` - закрытие окна происходит при клике вне окна или на кнопку закрытия.
+
+Назначение: отображение дополнительной или детальной информации, например, подробностей товара.
+
+##### 3.3.2.8 Notification (Уведомления)
+
+```ts
+class Notification {
+  showSuccess(message: string): void; // Показывает уведомление об успехе.
+  showError(message: string): void; // Показывает уведомление об ошибке.
+    
+  // показывает уведомление об успешном заказе
+  showOrderSuccess(orderId: string, total: number): void {
+    this.showSuccess(`Заказ ${orderId} оформлен. Списано ${total} синапсов.`);
+  }
+    
+}
+```
+
+Методы:
+- `showSuccess(message: string): void` – показывает уведомление об успехе.
+- `showError(message: string): void` – показывает уведомление об ошибке.
+
+Назначение: Отображение уведомлений об успехе или ошибках.
+
+##### 3.3.2.9 ErrorView и LoadingView (Уведомления)
+```ts
+class ErrorView {
+  render(errorMessage: string): HTMLElement {
+    const container = document.createElement("div");
+    container.innerHTML = `<p class="error">Ошибка: ${errorMessage}</p>`;
+    return container;
+  }
+}
+
+class LoadingView {
+  render(): HTMLElement {
+    const container = document.createElement("div");
+    container.innerHTML = `<p class="loading">Загрузка...</p>`;
+    return container;
+  }
+}
+```
+
+##### 3.3.2.10 OrderSuccessView (Подтверждение заказа)
+```ts
+class OrderSuccessView {
+  render(orderId: string, total: number): HTMLElement {
+    const container = document.createElement('div');
+    container.innerHTML = `<h2>Заказ ${orderId} оформлен!</h2><p>Списано ${total} синапсов.</p>`;
+    return container;
+  }
+}
+```
+Назначение: отображает финальный экран подтверждения заказа.
 
 #### 3.3.3 Presenter (презентер)
 ```ts
@@ -270,18 +437,7 @@ EventBroker реализует паттерн "Наблюдатель" и отв
 | `order_failed` | Ошибка при оформлении заказа | `{ error: string }` |
 | `close_modal` | Закрыть модальное окно | -   |
 
-### 3.5 Валидация заказа
-```ts
-function validateOrder(order: Order): string | null {
-  if (!order.cart.length) return 'Корзина пуста';
-  if (!order.deliveryAddress) return 'Введите адрес доставки';
-  if (!order.customerEmail.includes('@')) return 'Введите корректный email';
-  if (!order.customerPhone.match(/^[0-9]{10}$/)) return 'Введите корректный номер телефона';
-  if (!['card', 'paypal'].includes(order.paymentMethod)) return 'Выберите корректный способ оплаты';
-  return null;
-}
-```
-### 3.6 Состояние приложения
+### 3.5 Состояние приложения
 ```ts
 interface AppState {
   loading: boolean;
