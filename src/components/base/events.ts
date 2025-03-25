@@ -88,4 +88,20 @@ export class EventEmitter implements IEvents {
         };
     }
 }
+export class EventBroker {
+    private events: { [key: string]: Function[] } = {};
+  
+    on(event: string, callback: Function) {
+      this.events[event] = this.events[event] ?? [];
+      this.events[event].push(callback);
+    }
+  
+    off(event: string, callback: Function) {
+      this.events[event] = this.events[event]?.filter(cb => cb !== callback) ?? [];
+    }
+  
+    emit(event: string, data?: any) {
+      this.events[event]?.forEach(cb => cb(data));
+    }
+  }
 
