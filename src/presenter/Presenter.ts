@@ -29,7 +29,7 @@ export class Presenter {
       return;
     }
 
-    const total = validItems.reduce((sum, item) => sum + (item.product.price ?? 0) * item.quantity, 0);
+    const total:any = validItems.reduce((sum, item) => sum + (item.product.price ?? 0) * item.quantity, 0);
     const order = new Order(Date.now().toString(), validItems, details, total);
 
     try {

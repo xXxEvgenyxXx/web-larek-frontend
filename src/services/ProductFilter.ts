@@ -6,7 +6,7 @@ export class ProductFilter {
   }
 
   static searchByName(products: Product[], query: string): Product[] {
-    return products.filter(product => product.name.toLowerCase().includes(query.toLowerCase()));
+    return products.filter(product => product.title.toLowerCase().includes(query.toLowerCase()));
   }
 
   static sortByPrice(products: Product[], ascending: boolean = true): Product[] {
