@@ -6,8 +6,6 @@ export type ApiListResponse<Type> = {
 export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
 
 export class Api {
-<<<<<<< HEAD
-<<<<<<< HEAD
   readonly baseUrl: string;
   protected options: RequestInit;
 
@@ -41,8 +39,6 @@ export class Api {
           body: JSON.stringify(data)
       }).then(this.handleResponse);
   }
-=======
->>>>>>> parent of 06fd625 (	modified:   src/components/base/api.ts)
   async getProducts(): Promise<Product[]> {
     return fetch('/api/products').then(res => res.json());
   }
