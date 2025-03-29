@@ -1,16 +1,15 @@
-import { WebLarekApi } from "../components/WebLarekAPI";
+import { Api } from "../components/base/api";
 import { EventBroker } from "../components/base/events";
 import { DataRepository } from "./DataRepository";
-import {API_URL, CDN_URL} from "../utils/constants";
 
 export class ServiceManager {
   private static instance: ServiceManager;
-  public api: WebLarekApi;
+  public api: Api;
   public eventBroker: EventBroker;
   public dataRepo: DataRepository;
 
   private constructor() {
-    this.api = new WebLarekApi(CDN_URL, API_URL);
+    this.api = new Api();
     this.eventBroker = new EventBroker();
     this.dataRepo = DataRepository.getInstance(this.api);
   }
