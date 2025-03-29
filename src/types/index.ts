@@ -1,30 +1,43 @@
-<<<<<<< HEAD
-export interface Product {
-    id: string;
-    title: string;
-    category: string;
-    price: number | null;
-    description: string;
-    image: string;
-  }
-  export interface IProduct {
-    id: string;
-    title: string;
-    description: string;
-    price: number | null;
-    category: string;
-    image: string;
-    status?: boolean;
-    selected?: boolean;
+export interface IProduct {
+  id: string;
+  title: string;
+  category: string;
+  price: number | null;
+  description: string;
+  image: string;
+}
+export interface IOrder {
+  id: string;
+  paymentMethod: 'card' | 'cash';
+  deliveryAddress: string;
+  customerEmail: string;
+  customerPhone: string;
+  timestamp: string;
+    
+  validateOrder(): string | null; // Проверяет корректность введённых данных
+  createOrderToPost(items: string[], total: number): IOrderToPost;
+}
+export interface IOrderToPost {
+  payment: 'card' | 'cash';
+  address: string;
+  email: string;
+  phone: string;
+  total: number;
+  items: string[];
 }
 
-export interface IOrderForm {
-    payment: string;
-    address: string;
-    email: string;
-    phone: string;
-    items: string[];
-    total: number;
+export interface Catalog {
+  products: IProduct[];
+
+  setProducts(products: IProduct[]): void; // Устанавливает список товаров после загрузки с сервера.
+  getProducts(): IProduct[]; // Возвращает список товаров.
 }
-=======
->>>>>>> parent of 37e20cf (	modified:   src/components/base/events.ts)
+export interface IAppState {
+  loading: boolean;
+  error: string | null;
+  modalOpen: boolean;
+  currentView: 'catalog' | 'cart' | 'checkout';
+}
+export interface IOrderResult {
+  id: string;
+}
