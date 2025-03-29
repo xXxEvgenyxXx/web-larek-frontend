@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export interface Product {
     id: string;
     title: string;
@@ -25,3 +26,5 @@ export interface IOrderForm {
     items: string[];
     total: number;
 }
+=======
+>>>>>>> parent of 37e20cf (	modified:   src/components/base/events.ts)
