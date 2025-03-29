@@ -21,3 +21,10 @@ export interface IWebLarekApi {
       );
     }
   }
+  
+  const api = new WebLarekApi(CDN_URL, API_URL);
+  
+  api.getCards()
+    .then((res) => {
+      console.log(res);
+    });
