@@ -117,24 +117,15 @@ interface Cart {
 Назначение: Управление товарами в корзине.
 ##### 3.3.1.3 Модель заказа
 ```ts
-interface Order {
-  id: string;
-  paymentMethod: 'card' | 'cash';
-  deliveryAddress: string;
-  customerEmail: string;
-  customerPhone: string;
-  timestamp: string;
-    
-  validateOrder(): string | null; // Проверяет корректность введённых данных
-  createOrderToPost(items: string[], total: number): OrderToPost;
+interface OrderForm {
+  payment: string;
+  address: string;
+  phone: string;
+  email: string;
+  total: string | number;
 }
 
-interface OrderToPost {
-  payment: 'card' | 'cash';
-  address: string;
-  email: string;
-  phone: string;
-  total: number;
+interface Order {
   items: string[];
 }
 
