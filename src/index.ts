@@ -6,16 +6,31 @@ import { WebLarekApi } from './components/model/WebLarekApi';
 import { DataModel } from './components/model/Data';
 import { Card } from './components/view/card';
 import { ensureElement } from './utils/utils';
+import { Product } from './types/index';
 
 const api = new WebLarekApi(CDN_URL, API_URL);
 const events = new EventEmitter();
-const data = new DataModel(events);
+const cardData = new DataModel(events);
 const cardCatalogTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
 
 
 events.on('productCards:receive', () => {
-    data.productCards.forEach(item => {
+  cardData.productCards.forEach(item => {
       const card = new Card(cardCatalogTemplate, events, { onClick: () => events.emit('card:select', item) });
       ensureElement<HTMLElement>('.gallery').append(card.render(item));
     });
   });
+
+events.on('card:select', (item: Product) => { cardData.setPreview(item) });
+
+//events.on('modalCard:open', (item: IProductItem) => {
+//  const cardPreview = new CardPreview(cardPreviewTemplate, events)
+//  modal.content = cardPreview.render(item);
+//  modal.render();
+//});
+
+api.getListProductCard()
+.then((data: Product[]) =>{
+  cardData.productCards = data;
+})
+.catch(error => console.log(error))
