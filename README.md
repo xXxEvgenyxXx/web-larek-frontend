@@ -128,14 +128,6 @@ interface OrderForm {
 interface Order {
   items: string[];
 }
-
-validateOrder(): string | null {
-  if (!this.deliveryAddress) return 'Введите адрес доставки';
-  if (!this.customerEmail.includes('@')) return 'Введите корректный email';
-  if (!this.customerPhone.match(/^\+7[0-9]{10}$/)) return 'Введите корректный номер телефона';
-  if (!['card', 'cash'].includes(this.paymentMethod)) return 'Выберите корректный способ оплаты';
-  return null;
-}
 ```
 Назначение: Хранение информации о заказе и его валидация. Генерация данных для отправки на сервер происходит отдельно методом createOrderToPost.
 

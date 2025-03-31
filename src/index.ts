@@ -33,6 +33,14 @@ events.on('modalCard:open', (item: Product) => {
   modal.render();
 });
 
+events.on('modal:open', () => {
+  modal.locked = true;
+});
+
+events.on('modal:close', () => {
+  modal.locked = false;
+});
+
 api.getListProductCard()
 .then((data: Product[]) =>{
   cardData.productCards = data;
