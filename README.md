@@ -117,16 +117,33 @@ interface Cart {
 Назначение: Управление товарами в корзине.
 ##### 3.3.1.3 Модель заказа
 ```ts
-interface OrderForm {
-  payment: string;
-  address: string;
-  phone: string;
-  email: string;
-  total: string | number;
+interface Order {
+  id: string;
+  paymentMethod: 'card' | 'cash';
+  deliveryAddress: string;
+  customerEmail: string;
+  customerPhone: string;
+  timestamp: string;
+    
+  validateOrder(): string | null; // Проверяет корректность введённых данных
+  createOrderToPost(items: string[], total: number): OrderToPost;
 }
 
-interface Order {
+interface OrderToPost {
+  payment: 'card' | 'cash';
+  address: string;
+  email: string;
+  phone: string;
+  total: number;
   items: string[];
+}
+
+validateOrder(): string | null {
+  if (!this.deliveryAddress) return 'Введите адрес доставки';
+  if (!this.customerEmail.includes('@')) return 'Введите корректный email';
+  if (!this.customerPhone.match(/^\+7[0-9]{10}$/)) return 'Введите корректный номер телефона';
+  if (!['card', 'cash'].includes(this.paymentMethod)) return 'Выберите корректный способ оплаты';
+  return null;
 }
 ```
 Назначение: Хранение информации о заказе и его валидация. Генерация данных для отправки на сервер происходит отдельно методом createOrderToPost.
