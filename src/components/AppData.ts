@@ -6,24 +6,12 @@ import {FormErrors, IAppState, IProduct, IOrder, IOrderForm} from "../types";
 import { IEvents } from "./base/events";
 
 export type CatalogChangeEvent = {
-    catalog: ProductItem[]
+    catalog: IProduct[]
 };
-
-export class ProductItem extends Model<IProduct> {
-    description: string;
-    id: string;
-    image: string;
-    title: string;
-    price: number;
-
-    constructor(data: IProduct, events:IEvents) {
-        super(data,events);
-    }
-}
 
 export class AppState extends Model<IAppState> {
     basket: string[];
-    catalog: ProductItem[];
+    catalog: IProduct[];
     loading: boolean;
     order: IOrder = {
         email: '',
@@ -38,7 +26,7 @@ export class AppState extends Model<IAppState> {
     }
 
     setCatalog(items: IProduct[]) {
-        this.catalog = items.map(item => new ProductItem(item, this.events));
+        this.catalog = items;
     }
     setOrderField(field: keyof IOrderForm, value: string) {
         this.order[field] = value;

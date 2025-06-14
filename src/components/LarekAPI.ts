@@ -1,13 +1,13 @@
 import { Api, ApiListResponse } from './base/api';
 import {IOrder, IOrderResult, IProduct} from "../types";
 
-export interface IAuctionAPI {
+export interface ILarekAPI {
     getProductList: () => Promise<IProduct[]>;
     getProductItem: (id: string) => Promise<IProduct>;
     orderProducts: (order: IOrder) => Promise<IOrderResult>;
 }
 
-export class AuctionAPI extends Api implements IAuctionAPI {
+export class LarekAPI extends Api implements ILarekAPI {
     readonly cdn: string;
 
     constructor(cdn:string, baseUrl: string, options?: RequestInit) {
@@ -19,16 +19,16 @@ export class AuctionAPI extends Api implements IAuctionAPI {
         return this.get(`/product/${id}`).then(
             (item: IProduct) => ({
                 ...item,
-                image: item.image,
+                image: this.cdn + item.image,
             })
         );
     }
 
     getProductList(): Promise<IProduct[]> {
-        return this.get('/product').then((data: ApiListResponse<IProduct>) =>
+        return this.get(`/product`).then((data: ApiListResponse<IProduct>) =>
             data.items.map((item) => ({
                 ...item,
-                image: item.image
+                image: this.cdn + item.image
             }))
         );
     }
