@@ -27,6 +27,7 @@ export class AppState extends Model<IAppState> {
 
     setCatalog(items: IProduct[]) {
         this.catalog = items;
+        this.emitChanges('items:changed', { catalog: this.catalog });
     }
     setOrderField(field: keyof IOrderForm, value: string) {
         this.order[field] = value;
@@ -34,6 +35,10 @@ export class AppState extends Model<IAppState> {
         if (this.validateOrder()) {
             this.events.emit('order:ready', this.order);
         }
+    }
+    setPreview(item: IProduct) {
+        this.preview = item.id;
+        this.emitChanges('preview:changed', item);
     }
 
     validateOrder() {
