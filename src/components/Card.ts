@@ -26,7 +26,7 @@ export class Card<T> extends Component<ICard<T>> {
         super(container);
         this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
         this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container);
-        this._description = container.querySelector(`.${blockName}__description`);
+        this._description = container.querySelector(`.${blockName}__text`);
         this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`,container);
         this._button = container.querySelector(`#${blockName}-catalog .gallery__item`);
@@ -81,6 +81,9 @@ export class Card<T> extends Component<ICard<T>> {
 
     set description(value: string | string[]) {
         this.setText(this._description, value);
+    }
+    get description():string{
+        return this._description.textContent || '';
     }
 }
 

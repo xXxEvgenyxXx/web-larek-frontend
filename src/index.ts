@@ -29,7 +29,6 @@ events.on<CatalogChangeEvent>('items:changed', () => {
     if (!container) return;
 
     container.innerHTML = ''; // Очищаем перед рендером
-    console.log(container);
 
     page.catalog = appData.catalog.map(item => {
         const card = new CatalogItem(cloneTemplate(cardCatalogTemplate), {
@@ -49,17 +48,15 @@ events.on('card:select', (item: IProduct) => {
 });
 events.on('preview:changed', (item: IProduct) => {
     const card = new CatalogItem(cloneTemplate(cardPreviewTemplate));
-
     modal.render({
         content: card.render({
             category:item.category,
             title: item.title,
             image: item.image,
             price:item.price,
-            description: item.description.split("\n"),
+            description: item.description,
         })
     });
-    console.log(modal);
 });
 // Получение продуктов с сервера
 api.getProductList()
