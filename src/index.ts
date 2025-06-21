@@ -3,11 +3,12 @@ import {CDN_URL, API_URL} from "./utils/constants";
 import { LarekAPI } from './components/LarekAPI';
 import {EventEmitter} from "./components/base/events";
 import { AppState, CatalogChangeEvent } from './components/AppData';
-import { ensureElement,cloneTemplate } from './utils/utils';
+import { ensureElement,cloneTemplate,createElement } from './utils/utils';
 import { Page } from './components/Page';
 import { CatalogItem } from './components/Card';
 import { IProduct } from './types';
 import { Modal } from './components/Modal';
+import { Basket } from './components/Basket';
 const events = new EventEmitter();
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
@@ -20,6 +21,12 @@ const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const api = new LarekAPI(CDN_URL, API_URL);
 const appData = new AppState({}, events);
 const page = new Page(document.body, events);
+const basket = new Basket(cloneTemplate(basketTemplate), events);
+
+events.onAll(({ eventName, data }) => {
+    console.log('-------------------------------------------------');
+    console.log(eventName, data);
+})
 
 events.on('items:changed', () => {
     console.log("Каталог обновлён:", appData.catalog); // Данные должны быть не пустые
@@ -57,6 +64,25 @@ events.on('preview:changed', (item: IProduct) => {
             description: item.description,
         })
     });
+});
+events.on('basket:open', () => {
+    modal.render({
+        content: createElement<HTMLElement>('div', {}, [
+            basket.render()
+        ])
+    });
+});
+events.on('card:addToBasket',()=>{
+    console.log('card added to basket')
+})
+// Блокируем прокрутку страницы если открыта модалка
+events.on('modal:open', () => {
+    page.locked = true;
+});
+
+// ... и разблокируем
+events.on('modal:close', () => {
+    page.locked = false;
 });
 // Получение продуктов с сервера
 api.getProductList()

@@ -21,6 +21,7 @@ export class Card<T> extends Component<ICard<T>> {
     protected _category?: HTMLElement;
     protected _price?: HTMLElement
     protected _button?: HTMLButtonElement;
+    protected _cardButton?: HTMLButtonElement;
 
     constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions) {
         super(container);
@@ -29,7 +30,13 @@ export class Card<T> extends Component<ICard<T>> {
         this._description = container.querySelector(`.${blockName}__text`);
         this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`,container);
-        this._button = container.querySelector(`#${blockName}-catalog .gallery__item`);
+        this._cardButton = container.querySelector(`.${this.blockName}__button`);
+        
+        if (this._cardButton) {
+            this._cardButton.addEventListener('click', () => {
+                console.log('clicked')
+            });
+        }
         if (actions?.onClick) {
             if (this._button) {
                 this._button.addEventListener('click', actions.onClick);

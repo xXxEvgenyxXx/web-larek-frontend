@@ -5,7 +5,7 @@ import {ensureElement} from "../utils/utils";
 interface IPage {
     counter: number;
     catalog: HTMLElement[];
-    //locked: boolean;
+    locked: boolean;
 }
 
 export class Page extends Component<IPage> {
@@ -34,5 +34,12 @@ export class Page extends Component<IPage> {
 
     set catalog(items: HTMLElement[]) {
         this._catalog.replaceChildren(...items);
+    }
+    set locked(value: boolean) {
+        if (value) {
+            this._wrapper.classList.add('page__wrapper_locked');
+        } else {
+            this._wrapper.classList.remove('page__wrapper_locked');
+        }
     }
 }
