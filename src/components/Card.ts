@@ -1,16 +1,18 @@
 import {Component} from "./base/Component";
-import {IProduct} from "../types";
+//import {IProduct} from "../types";
 import {bem, createElement, ensureElement} from "../utils/utils";
+//import { events } from "./base/events";
 
 interface ICardActions {
     onClick: (event: MouseEvent) => void;
 }
 
 export interface ICard<T> {
-    category: string;
+    id:string;
+    category?: string;
     title: string;
-    description?: string | string[];
-    image: string;
+    description?: string;
+    image?: string;
     price:number;
 }
 
@@ -31,12 +33,6 @@ export class Card<T> extends Component<ICard<T>> {
         this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`,container);
         this._cardButton = container.querySelector(`.${this.blockName}__button`);
-        
-        if (this._cardButton) {
-            this._cardButton.addEventListener('click', () => {
-                console.log('clicked')
-            });
-        }
         if (actions?.onClick) {
             if (this._button) {
                 this._button.addEventListener('click', actions.onClick);

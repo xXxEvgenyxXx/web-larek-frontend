@@ -1,7 +1,7 @@
 import './scss/styles.scss';
 import {CDN_URL, API_URL} from "./utils/constants";
 import { LarekAPI } from './components/LarekAPI';
-import {EventEmitter} from "./components/base/events";
+//import {EventEmitter} from "./components/base/events";
 import { AppState, CatalogChangeEvent } from './components/AppData';
 import { ensureElement,cloneTemplate,createElement } from './utils/utils';
 import { Page } from './components/Page';
@@ -9,7 +9,7 @@ import { CatalogItem } from './components/Card';
 import { IProduct } from './types';
 import { Modal } from './components/Modal';
 import { Basket } from './components/Basket';
-const events = new EventEmitter();
+import { events } from './components/base/events';
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
@@ -22,6 +22,8 @@ const api = new LarekAPI(CDN_URL, API_URL);
 const appData = new AppState({}, events);
 const page = new Page(document.body, events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
+
+let index = 1; //Для подсчёта карточек в корзине
 
 events.onAll(({ eventName, data }) => {
     console.log('-------------------------------------------------');
@@ -54,7 +56,11 @@ events.on('card:select', (item: IProduct) => {
     appData.setPreview(item);
 });
 events.on('preview:changed', (item: IProduct) => {
-    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate));
+    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate),{
+        onClick:()=>{
+            events.emit('card:addToBasket',item);
+        }
+    });
     modal.render({
         content: card.render({
             category:item.category,
@@ -72,8 +78,20 @@ events.on('basket:open', () => {
         ])
     });
 });
-events.on('card:addToBasket',()=>{
-    console.log('card added to basket')
+events.on('card:addToBasket',(item:IProduct)=>{
+    const cardInBasket = cloneTemplate(cardBasketTemplate);
+    const basketList = basket.render().querySelector('.basket__list');
+    const cardName = cardInBasket.querySelector('.card__title');
+    const cardPrice = cardInBasket.querySelector('.card__price');
+    const cardIndex = cardInBasket.querySelector('.basket__item-index');
+    cardName.textContent = item.title;
+    cardPrice.textContent = `${item.price} синапсов`
+    cardIndex.textContent = `${index}`;
+    if(basketList.innerHTML === '<p>Корзина пуста</p>'){
+        basketList.innerHTML = '';
+    }
+    basketList.appendChild(cardInBasket);
+    index+=1;
 })
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {

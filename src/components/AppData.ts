@@ -10,7 +10,7 @@ export type CatalogChangeEvent = {
 };
 
 export class AppState extends Model<IAppState> {
-    basket: string[];
+    basket: IProduct[] = [];
     catalog: IProduct[];
     loading: boolean;
     order: IOrder = {

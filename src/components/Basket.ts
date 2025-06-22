@@ -16,8 +16,8 @@ export class Basket extends Component<IBasketView> {
         super(container);
 
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
-        this._total = this.container.querySelector('.basket__total');
-        this._button = this.container.querySelector('.basket__action');
+        this._total = this.container.querySelector('.basket__price');
+        this._button = this.container.querySelector('.basket__button');
 
         if (this._button) {
             this._button.addEventListener('click', () => {
@@ -26,6 +26,7 @@ export class Basket extends Component<IBasketView> {
         }
 
         this.items = [];
+        console.log(this.items);
     }
 
     set items(items: HTMLElement[]) {
@@ -38,13 +39,13 @@ export class Basket extends Component<IBasketView> {
         }
     }
 
-    set selected(items: string[]) {
-        if (items.length) {
-            this.setDisabled(this._button, false);
-        } else {
-            this.setDisabled(this._button, true);
-        }
-    }
+    //set selected(items: string[]) {
+    //    if (items.length) {
+    //        this.setDisabled(this._button, false);
+    //    } else {
+    //        this.setDisabled(this._button, true);
+    //    }
+    //}
 
     set total(total: number) {
         this.setText(this._total, formatNumber(total));
