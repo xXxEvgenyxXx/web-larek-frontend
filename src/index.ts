@@ -5,7 +5,7 @@ import { LarekAPI } from './components/LarekAPI';
 import { AppState, CatalogChangeEvent } from './components/AppData';
 import { ensureElement,cloneTemplate,createElement } from './utils/utils';
 import { Page } from './components/Page';
-import { CatalogItem } from './components/Card';
+import { Card, CatalogItem } from './components/Card';
 import { IProduct } from './types';
 import { Modal } from './components/Modal';
 import { Basket } from './components/Basket';
@@ -23,8 +23,6 @@ const appData = new AppState({}, events);
 const page = new Page(document.body, events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 
-let index = 1; //Для подсчёта карточек в корзине
-
 events.onAll(({ eventName, data }) => {
     console.log('-------------------------------------------------');
     console.log(eventName, data);
@@ -34,10 +32,6 @@ events.on('items:changed', () => {
     console.log("Каталог обновлён:", appData.catalog); // Данные должны быть не пустые
 });
 events.on<CatalogChangeEvent>('items:changed', () => {
-    const container = document.querySelector('.gallery')
-    if (!container) return;
-
-    container.innerHTML = ''; // Очищаем перед рендером
 
     page.catalog = appData.catalog.map(item => {
         const card = new CatalogItem(cloneTemplate(cardCatalogTemplate), {
@@ -79,19 +73,7 @@ events.on('basket:open', () => {
     });
 });
 events.on('card:addToBasket',(item:IProduct)=>{
-    const cardInBasket = cloneTemplate(cardBasketTemplate);
-    const basketList = basket.render().querySelector('.basket__list');
-    const cardName = cardInBasket.querySelector('.card__title');
-    const cardPrice = cardInBasket.querySelector('.card__price');
-    const cardIndex = cardInBasket.querySelector('.basket__item-index');
-    cardName.textContent = item.title;
-    cardPrice.textContent = `${item.price} синапсов`
-    cardIndex.textContent = `${index}`;
-    if(basketList.innerHTML === '<p>Корзина пуста</p>'){
-        basketList.innerHTML = '';
-    }
-    basketList.appendChild(cardInBasket);
-    index+=1;
+    
 })
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {

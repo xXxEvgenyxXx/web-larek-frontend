@@ -23,16 +23,14 @@ export class Card<T> extends Component<ICard<T>> {
     protected _category?: HTMLElement;
     protected _price?: HTMLElement
     protected _button?: HTMLButtonElement;
-    protected _cardButton?: HTMLButtonElement;
 
     constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions) {
         super(container);
         this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-        this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container);
-        this._description = container.querySelector(`.${blockName}__text`);
-        this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container);
+        this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container) || null;
+        this._description = container.querySelector(`.${blockName}__text`) || null;
+        this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container) || null;
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`,container);
-        this._cardButton = container.querySelector(`.${this.blockName}__button`);
         if (actions?.onClick) {
             if (this._button) {
                 this._button.addEventListener('click', actions.onClick);
