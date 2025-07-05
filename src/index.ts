@@ -75,14 +75,13 @@ events.on('basket:open', () => {
 events.on('basket:change', () => {
   page.counter = appData.basket.items.length;
   basket.items = appData.basket.items.map(id => {
-    const item = appData.items.find(item => item.id === id);
+    const item = appData.catalog.find(item => item.id === id);
 
     const card = new Card('card', cloneTemplate(cardBasketTemplate), {
       onClick: () => {
         appData.removeFromBasket(item);
       }
     })
-    console.log(card.render(item));
 
     return card.render(item);
   })
