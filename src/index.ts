@@ -73,20 +73,20 @@ events.on('basket:open', () => {
     });
 });
 events.on('basket:change',(basketItems:IProduct)=>{
-    //page.counter = appData.basket.catalog.length;
-    //basket.items = appData.basket.catalog.map(id => {
-    //    const item = appData.catalog.find(item => item.id === id);
-//
-    //    const card = new Card(cloneTemplate(cardBasketTemplate), {
-    //        onClick: () => {
-    //            ////
-    //        }
-    //    })
-//
-    //    return card.render(item);
-    //})
-//
-    //basket.total = ///;
+    page.counter = appData.basket.catalog.length;
+    basket.items = appData.basket.catalog.map(id => {
+        const item = appData.catalog.find(item => item.id === id);
+
+        const card = new Card(cloneTemplate(cardBasketTemplate), {
+            onClick: () => {
+                ////
+            }
+        })
+
+        return card.render(item);
+    })
+
+    basket.total = ///;
 })
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {

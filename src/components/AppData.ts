@@ -24,12 +24,10 @@ export class AppState extends Model<IAppState> {
     formErrors: FormErrors = {};
 
     addToBasket(item: IProduct) {
-        this.basket.push(item);
+        this.basket.items.push(item.id);
+        this.basket.total += item.price;
         console.log('Basket elements:');
-        this.basket.forEach(basketElement => {
-            console.log(basketElement)
-        });
-        console.log(this.basket.length);
+        console.log(this.basket.total);
         this.events.emit('basket:change',this.basket) // дописать реализацию ивента change (изменение корзины) в твоем стиле
     }
 
