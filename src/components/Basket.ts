@@ -31,6 +31,13 @@ export class Basket extends Component<IBasketView> {
     }
 
     set items(items: HTMLElement[]) {
+        let counter = 1;
+        items.forEach(item => {
+            console.log(`item ${counter}:`)
+            console.log(item);
+            item.querySelector('.basket__item-index').textContent = `${counter}`
+            counter+=1;
+        });
         if (items.length) {
             this._list.replaceChildren(...items);
         } else {
