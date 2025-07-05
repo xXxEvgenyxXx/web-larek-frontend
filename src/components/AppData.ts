@@ -2,14 +2,17 @@
 //import {dayjs, formatNumber} from "../utils/utils";
 
 import {Model} from "./base/Model";
-import {FormErrors, IAppState, IProduct, IOrder, IOrderForm} from "../types";
+import {FormErrors, IAppState, IProduct, IOrder, IOrderForm,IBasket} from "../types";
 
 export type CatalogChangeEvent = {
     catalog: IProduct[]
 };
 
 export class AppState extends Model<IAppState> {
-    basket: IProduct[] = [];
+    basket: IBasket = {
+        items: [],
+        total: 0
+    };
     catalog: IProduct[];
     loading: boolean;
     order: IOrder = {
@@ -27,7 +30,7 @@ export class AppState extends Model<IAppState> {
             console.log(basketElement)
         });
         console.log(this.basket.length);
-        this.events.emit('card:addToBasket',item) // дописать реализацию ивента change (изменение корзины) в твоем стиле
+        this.events.emit('basket:change',this.basket) // дописать реализацию ивента change (изменение корзины) в твоем стиле
     }
 
     getTotal() {

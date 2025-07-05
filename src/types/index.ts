@@ -31,6 +31,10 @@ export interface IOrderForm {
     email: string;
     phone: string;
 }
+export interface IBasket {
+    items: string[];
+    total: number;
+}
 
 export interface IOrder extends IOrderForm {
     items: string[]
