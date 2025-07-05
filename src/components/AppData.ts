@@ -3,7 +3,6 @@
 
 import {Model} from "./base/Model";
 import {FormErrors, IAppState, IProduct, IOrder, IOrderForm} from "../types";
-import { IEvents } from "./base/events";
 
 export type CatalogChangeEvent = {
     catalog: IProduct[]
@@ -20,6 +19,16 @@ export class AppState extends Model<IAppState> {
     };
     preview: string | null;
     formErrors: FormErrors = {};
+
+    addToBasket(item: IProduct) {
+        this.basket.push(item);
+        console.log('Basket elements:');
+        this.basket.forEach(basketElement => {
+            console.log(basketElement)
+        });
+        console.log(this.basket.length);
+        this.events.emit('card:addToBasket',item) // дописать реализацию ивента change (изменение корзины) в твоем стиле
+    }
 
     getTotal() {
         return this.order.items.reduce((a, c) => a + this.catalog.find(it => it.id === c).price, 0)

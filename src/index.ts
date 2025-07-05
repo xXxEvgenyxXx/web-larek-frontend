@@ -52,7 +52,7 @@ events.on('card:select', (item: IProduct) => {
 events.on('preview:changed', (item: IProduct) => {
     const card = new CatalogItem(cloneTemplate(cardPreviewTemplate),{
         onClick:()=>{
-            events.emit('card:addToBasket',item);
+            appData.addToBasket(item);
         }
     });
     modal.render({
@@ -73,7 +73,6 @@ events.on('basket:open', () => {
     });
 });
 events.on('card:addToBasket',(item:IProduct)=>{
-    
 })
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
