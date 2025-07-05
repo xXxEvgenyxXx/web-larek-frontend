@@ -72,22 +72,25 @@ events.on('basket:open', () => {
         ])
     });
 });
-events.on('basket:change',(basketItems:IProduct)=>{
-    page.counter = appData.basket.catalog.length;
-    basket.items = appData.basket.catalog.map(id => {
-        const item = appData.catalog.find(item => item.id === id);
+events.on('basket:change', () => {
+  page.counter = appData.basket.items.length;
+  basket.items = appData.basket.items.map(id => {
+    const item = appData.items.find(item => item.id === id);
 
-        const card = new Card(cloneTemplate(cardBasketTemplate), {
-            onClick: () => {
-                ////
-            }
-        })
-
-        return card.render(item);
+    const card = new Card('card', cloneTemplate(cardBasketTemplate), {
+      onClick: () => {
+        appData.removeFromBasket(item);
+      }
     })
+    console.log(card.render(item));
 
-    basket.total = ///;
-})
+    return card.render(item);
+  })
+
+  basket.total = appData.basket.total;
+});
+
+
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
     page.locked = true;

@@ -27,9 +27,9 @@ export class Card<T> extends Component<ICard<T>> {
     constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions) {
         super(container);
         this._title = ensureElement<HTMLElement>(`.${blockName}__title`, container);
-        this._image = ensureElement<HTMLImageElement>(`.${blockName}__image`, container) || null;
-        this._description = container.querySelector(`.${blockName}__text`) || null;
-        this._category = ensureElement<HTMLElement>(`.${blockName}__category`,container) || null;
+        this._image = container.querySelector(`.${blockName}__image`);
+        this._description = container.querySelector(`.${blockName}__text`);
+        this._category = container.querySelector(`.${blockName}__category`);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`,container);
         if (actions?.onClick) {
             if (this._button) {

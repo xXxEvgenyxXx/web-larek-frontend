@@ -22,14 +22,20 @@ export class AppState extends Model<IAppState> {
     };
     preview: string | null;
     formErrors: FormErrors = {};
+    items: IProduct[] = [];
 
     addToBasket(item: IProduct) {
         this.basket.items.push(item.id);
         this.basket.total += item.price;
         console.log('Basket elements:');
         console.log(this.basket.total);
-        this.events.emit('basket:change',this.basket) // дописать реализацию ивента change (изменение корзины) в твоем стиле
+        this.events.emit('basket:change',this.basket)
     }
+
+    removeFromBasket(item: IProduct) {
+      console.log(item)
+    }
+
 
     getTotal() {
         return this.order.items.reduce((a, c) => a + this.catalog.find(it => it.id === c).price, 0)
