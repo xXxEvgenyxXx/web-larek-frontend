@@ -80,6 +80,7 @@ events.on('basket:change', () => {
     const card = new Card('card', cloneTemplate(cardBasketTemplate), {
       onClick: () => {
         appData.removeFromBasket(item);
+        basket.total = appData.basket.total;
       }
     })
 

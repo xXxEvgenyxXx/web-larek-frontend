@@ -27,13 +27,15 @@ export class AppState extends Model<IAppState> {
     addToBasket(item: IProduct) {
         this.basket.items.push(item.id);
         this.basket.total += item.price;
-        console.log('Basket elements:');
-        console.log(this.basket.total);
         this.events.emit('basket:change',this.basket)
     }
 
     removeFromBasket(item: IProduct) {
-      console.log(item)
+      this.basket.items.splice(this.basket.items.indexOf(item.id),1);
+      this.events.emit('basket:change',this.basket);
+      console.log(this.basket.total);
+      this.basket.total -= item.price;
+      console.log(this.basket.total);
     }
 
 
