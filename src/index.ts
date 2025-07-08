@@ -28,6 +28,11 @@ events.onAll(({ eventName, data }) => {
     console.log(eventName, data);
 })
 
+events.on('order:open',()=>{
+    modal.render({
+        content: createElement<HTMLElement>('div', {}, cloneTemplate(orderTemplate))
+    });
+})
 events.on('items:changed', () => {
     console.log("Каталог обновлён:", appData.catalog); // Данные должны быть не пустые
 });

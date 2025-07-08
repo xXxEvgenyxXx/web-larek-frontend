@@ -33,9 +33,7 @@ export class AppState extends Model<IAppState> {
     removeFromBasket(item: IProduct) {
       this.basket.items.splice(this.basket.items.indexOf(item.id),1);
       this.events.emit('basket:change',this.basket);
-      console.log(this.basket.total);
       this.basket.total -= item.price;
-      console.log(this.basket.total);
     }
 
 
