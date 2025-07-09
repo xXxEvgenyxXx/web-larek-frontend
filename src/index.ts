@@ -10,6 +10,7 @@ import { IProduct } from './types';
 import { Modal } from './components/Modal';
 import { Basket } from './components/Basket';
 import { events } from './components/base/events';
+import { Order } from './components/Order';
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
@@ -17,6 +18,8 @@ const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
+const order = new Order(cloneTemplate(orderTemplate), events);
+console.log(order);
 
 const api = new LarekAPI(CDN_URL, API_URL);
 const appData = new AppState({}, events);
@@ -29,8 +32,23 @@ events.onAll(({ eventName, data }) => {
 })
 
 events.on('order:open',()=>{
+    order.render({
+            phone: '',
+            email: '',
+            valid: false,
+            errors: []
+        }).querySelectorAll('.button_alt').forEach(button => {
+        button.addEventListener('click',()=>{
+            console.log('payment method clicked')
+        })
+    });
     modal.render({
-        content: createElement<HTMLElement>('div', {}, cloneTemplate(orderTemplate))
+        content: order.render({
+            phone: '',
+            email: '',
+            valid: false,
+            errors: []
+        })
     });
 })
 events.on('items:changed', () => {
