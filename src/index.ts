@@ -32,16 +32,6 @@ events.onAll(({ eventName, data }) => {
 })
 
 events.on('order:open',()=>{
-    order.render({
-            phone: '',
-            email: '',
-            valid: false,
-            errors: []
-        }).querySelectorAll('.button_alt').forEach(button => {
-        button.addEventListener('click',()=>{
-            console.log('payment method clicked')
-        })
-    });
     modal.render({
         content: order.render({
             phone: '',

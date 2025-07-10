@@ -45,7 +45,9 @@ export type FormErrors = Partial<Record<keyof IOrder, string>>;
 export interface IBid {
     price: number
 }
-
+export interface PaymentMethod {
+  type: 'cash' | 'online';
+}
 export interface IOrderResult {
     id: string;
 }
