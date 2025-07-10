@@ -11,16 +11,21 @@ interface IFormState {
 export class Form<T> extends Component<IFormState> {
     protected _submit: HTMLButtonElement;
     protected _errors: HTMLElement;
-    protected _paymentCard: HTMLElement;
-    protected _paymentCash: HTMLElement;
+    protected _paymentCard: HTMLButtonElement;
+    protected _paymentCash: HTMLButtonElement;
+    protected payment: PaymentMethod;
 
     constructor(protected container: HTMLFormElement, protected events: IEvents) {
         super(container);
 
         this._submit = ensureElement<HTMLButtonElement>('button[type=submit]', this.container);
         this._errors = ensureElement<HTMLElement>('.form__errors', this.container);
-        this._paymentCard = container.querySelector('[name="card"]');
-        this._paymentCash = container.querySelector('[name="cash"]');
+        this._paymentCard = ensureElement<HTMLButtonElement>('[name="card"]', this.container);
+        this._paymentCash = ensureElement<HTMLButtonElement>('[name="cash"]', this.container);
+        this.payment = { type: 'online' }; // Значение по умолчанию
+
+        // Инициализация активной кнопки
+        this.togglePaymentButton(this.payment.type);
 
         this.container.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLInputElement;
@@ -33,12 +38,25 @@ export class Form<T> extends Component<IFormState> {
             e.preventDefault();
             this.events.emit(`${this.container.name}:submit`);
         });
-        this._paymentCard.addEventListener('click',()=>{
-            this.payment.type = 'online'
-        })
-        this._paymentCash.addEventListener('click',()=>{
-            this.payment.type = 'cash'
-        })
+
+        this._paymentCard.addEventListener('click', () => {
+            this.setPayment('online');
+        });
+
+        this._paymentCash.addEventListener('click', () => {
+            this.setPayment('cash');
+        });
+    }
+
+    protected setPayment(type: 'online' | 'cash') {
+        this.payment = { type };
+        this.togglePaymentButton(type);
+        this.events.emit('payment:change', this.payment);
+    }
+
+    protected togglePaymentButton(type: 'online' | 'cash') {
+        this.toggleClass(this._paymentCard, 'button_alt-active', type === 'online');
+        this.toggleClass(this._paymentCash, 'button_alt-active', type === 'cash');
     }
 
     protected onInputChange(field: keyof T, value: string) {
@@ -56,17 +74,10 @@ export class Form<T> extends Component<IFormState> {
         this.setText(this._errors, value);
     }
 
-    set payment(value: PaymentMethod) {
-        this.toggleClass(this._paymentCard, 'button_alt-active', value.type === 'online');
-        this.toggleClass(this._paymentCash, 'button_alt-active', value.type === 'cash');
-    }
-
-
     render(state: Partial<T> & IFormState) {
         const {valid, errors, ...inputs} = state;
         super.render({valid, errors});
         Object.assign(this, inputs);
         return this.container;
-
     }
 }
