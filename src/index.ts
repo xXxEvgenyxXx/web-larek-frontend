@@ -11,7 +11,7 @@ import { Modal } from './components/Modal';
 import { Basket } from './components/Basket';
 import { events } from './components/base/events';
 import { Order } from './components/Order';
-import { Contacts } from './components/contacts';
+import { Contacts } from './components/Contacts';
 
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
@@ -160,6 +160,31 @@ events.on('modal:open', () => {
 // ... и разблокируем
 events.on('modal:close', () => {
     page.locked = false;
+});
+events.on('order:complete', () => {
+    const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+    const successClone = cloneTemplate(successTemplate);
+
+    // Находим элементы в клонированном шаблоне
+    const description = successClone.querySelector('.order-success__description');
+    const closeButton = successClone.querySelector('.order-success__close');
+
+    // Устанавливаем сумму из корзины
+    if (description) {
+        description.textContent = `Списано ${appData.basket.total} синапсов`;
+    }
+
+    // Закрытие модалки по кнопке
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            modal.close();
+        });
+    }
+
+    // Открываем модальное окно
+    modal.render({
+        content: successClone
+    });
 });
 // Получение продуктов с сервера
 api.getProductList()

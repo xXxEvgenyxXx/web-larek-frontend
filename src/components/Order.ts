@@ -17,7 +17,7 @@ export class Order extends Form<IOrderForm> {
 
         // Инициализация элементов
         this._paymentButtons = {
-            online: ensureElement<HTMLButtonElement>('button[name="online"]', container),
+            online: ensureElement<HTMLButtonElement>('button[name="card"]', container),
             cash: ensureElement<HTMLButtonElement>('button[name="cash"]', container)
         };
 
