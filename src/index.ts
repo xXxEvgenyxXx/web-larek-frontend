@@ -11,6 +11,8 @@ import { Modal } from './components/Modal';
 import { Basket } from './components/Basket';
 import { events } from './components/base/events';
 import { Order } from './components/Order';
+import { Contacts } from './components/contacts';
+
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
@@ -19,6 +21,7 @@ const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const order = new Order(cloneTemplate(orderTemplate), events);
+const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 console.log(order);
 
 const api = new LarekAPI(CDN_URL, API_URL);
@@ -31,16 +34,61 @@ events.onAll(({ eventName, data }) => {
     console.log(eventName, data);
 })
 
-events.on('order:open',()=>{
+events.on('order:open', () => {
     modal.render({
         content: order.render({
-            phone: '',
-            email: '',
+            payment:'online',
+            address: '',
             valid: false,
             errors: []
         })
     });
-})
+});
+
+// При отправке формы
+events.on('order:submit', () => {
+    const orderData = {
+        payment: order.payment, // Используем геттер payment
+        address: order.address // Используем геттер address
+    };
+    
+    appData.setOrderData(orderData);
+    
+    modal.render({
+        content: contacts.render({
+            email: '',
+            phone: '',
+            valid: false,
+            errors: []
+        })
+    });
+});
+// Обработка отправки формы контактов
+events.on('contacts:submit', () => {
+    const contactsData = {
+        email: contacts.email,
+        phone: contacts.phone
+    };
+    
+    // Собираем все данные заказа
+    const completeOrder = {
+        ...appData.getOrderData(),
+        ...contactsData
+    };
+    
+    // Отправляем заказ
+    events.emit('order:complete', completeOrder);
+});
+events.on('contacts:open', () => {
+    modal.render({
+        content: contacts.render({
+            email: '',
+            phone: '',
+            valid: false,
+            errors: []
+        })
+    });
+});
 events.on('items:changed', () => {
     console.log("Каталог обновлён:", appData.catalog); // Данные должны быть не пустые
 });

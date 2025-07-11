@@ -1,13 +1,3 @@
-export type LotStatus = 'wait' | 'active' | 'closed';
-
-export interface IAuction {
-    status: LotStatus;
-    datetime: string;
-    price: number;
-    minPrice: number;
-    history?: number[];
-}
-
 
 //Готовый
 export interface IProduct { 
@@ -26,27 +16,34 @@ export interface IAppState {
     order: IOrder | null;
     loading: boolean;
 }
-
+export interface IOrder {
+    email: string;
+    phone: string;
+    items: string[];
+    payment?: 'online' | 'cash'; // Добавляем необязательное поле
+    address?: string;            // Добавляем необязательное поле
+}
+export interface IFormState {
+    valid: boolean;
+    errors: string[];
+}
 export interface IOrderForm {
     email: string;
     phone: string;
+    payment: 'online' | 'cash';
+    address: string;
 }
+
+export type PaymentMethod = 'online' | 'cash';
 export interface IBasket {
     items: string[];
     total: number;
-}
-
-export interface IOrder extends IOrderForm {
-    items: string[]
 }
 
 export type FormErrors = Partial<Record<keyof IOrder, string>>;
 
 export interface IBid {
     price: number
-}
-export interface PaymentMethod {
-  type: 'cash' | 'online';
 }
 export interface IOrderResult {
     id: string;

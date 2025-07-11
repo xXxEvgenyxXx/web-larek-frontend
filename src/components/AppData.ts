@@ -2,7 +2,7 @@
 //import {dayjs, formatNumber} from "../utils/utils";
 
 import {Model} from "./base/Model";
-import {FormErrors, IAppState, IProduct, IOrder, IOrderForm,IBasket} from "../types";
+import {FormErrors, IAppState, IProduct, IOrder, IOrderForm,IBasket,PaymentMethod} from "../types";
 
 export type CatalogChangeEvent = {
     catalog: IProduct[]
@@ -24,49 +24,103 @@ export class AppState extends Model<IAppState> {
     formErrors: FormErrors = {};
     items: IProduct[] = [];
 
-    addToBasket(item: IProduct) {
+    /**
+     * Сохраняет данные заказа (адрес и способ оплаты)
+     */
+    setOrderData(data: { payment: PaymentMethod; address: string }): void {
+        if (!data.payment || !data.payment) {
+            throw new Error('Payment method is required');
+        }
+        
+        this.order = {
+            ...this.order,
+            payment: data.payment,
+            address: data.address
+        };
+        this.emitChanges('order:updated', this.order);
+    }
+
+    /**
+     * Получает текущие данные заказа
+     */
+    getOrderData(): IOrder {
+        return {
+            ...this.order,
+            items: [...this.basket.items]
+        };
+    }
+
+    addToBasket(item: IProduct): void {
         this.basket.items.push(item.id);
         this.basket.total += item.price;
-        this.events.emit('basket:change',this.basket)
+        this.emitChanges('basket:change', this.basket);
     }
 
-    removeFromBasket(item: IProduct) {
-      this.basket.items.splice(this.basket.items.indexOf(item.id),1);
-      this.events.emit('basket:change',this.basket);
-      this.basket.total -= item.price;
+    removeFromBasket(item: IProduct): void {
+        this.basket.items = this.basket.items.filter(id => id !== item.id);
+        this.basket.total -= item.price;
+        this.emitChanges('basket:change', this.basket);
     }
 
-
-    getTotal() {
-        return this.order.items.reduce((a, c) => a + this.catalog.find(it => it.id === c).price, 0)
+    getTotal(): number {
+        return this.basket.items.reduce((total, itemId) => {
+            const item = this.catalog.find(it => it.id === itemId);
+            return total + (item?.price || 0);
+        }, 0);
     }
 
-    setCatalog(items: IProduct[]) {
+    setCatalog(items: IProduct[]): void {
         this.catalog = items;
         this.emitChanges('items:changed', { catalog: this.catalog });
     }
-    setOrderField(field: keyof IOrderForm, value: string) {
-        this.order[field] = value;
+
+    setOrderField(field: keyof IOrderForm, value: string): void {
+        if (field === 'payment') {
+            this.order.payment = value as 'online' | 'cash';
+        } else if (field === 'address') {
+            this.order.address = value;
+        } else {
+            this.order[field] = value;
+        }
 
         if (this.validateOrder()) {
-            this.events.emit('order:ready', this.order);
+            this.emitChanges('order:ready', this.order);
         }
     }
-    setPreview(item: IProduct) {
+
+    setPreview(item: IProduct): void {
         this.preview = item.id;
         this.emitChanges('preview:changed', item);
     }
 
-    validateOrder() {
+    validateOrder(): boolean {
         const errors: typeof this.formErrors = {};
+        
         if (!this.order.email) {
             errors.email = 'Необходимо указать email';
         }
         if (!this.order.phone) {
             errors.phone = 'Необходимо указать телефон';
         }
+        if (this.order.payment && !this.order.address) {
+            errors.address = 'Необходимо указать адрес';
+        }
+        
         this.formErrors = errors;
-        this.events.emit('formErrors:change', this.formErrors);
+        this.emitChanges('formErrors:change', this.formErrors);
         return Object.keys(errors).length === 0;
+    }
+
+    resetOrder(): void {
+        this.order = {
+            email: '',
+            phone: '',
+            items: []
+        };
+        this.basket = {
+            items: [],
+            total: 0
+        };
+        this.emitChanges('order:reset');
     }
 }
