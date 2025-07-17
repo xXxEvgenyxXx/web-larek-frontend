@@ -13,7 +13,8 @@ export interface ICard<T> {
     title: string;
     description?: string;
     image?: string;
-    price:number;
+    price:number | null;
+    buttonDisabled?: boolean;
 }
 
 export class Card<T> extends Component<ICard<T>> {

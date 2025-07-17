@@ -12,6 +12,7 @@ import { Basket } from './components/Basket';
 import { events } from './components/base/events';
 import { Order } from './components/Order';
 import { Contacts } from './components/Contacts';
+import { Success } from './components/Success';
 
 const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
@@ -19,6 +20,7 @@ const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
 const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const order = new Order(cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
@@ -111,18 +113,24 @@ events.on('card:select', (item: IProduct) => {
     appData.setPreview(item);
 });
 events.on('preview:changed', (item: IProduct) => {
-    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate),{
-        onClick:()=>{
-            appData.addToBasket(item);
+    const isInBasket = appData.isInBasket(item.id); // Проверяем наличие в корзине
+
+    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            if (!isInBasket) {
+                appData.addToBasket(item);
+            }
         }
     });
+
     modal.render({
         content: card.render({
-            category:item.category,
+            category: item.category,
             title: item.title,
             image: item.image,
-            price:item.price,
+            price: item.price,
             description: item.description,
+            buttonDisabled: isInBasket
         })
     });
 });
@@ -162,28 +170,15 @@ events.on('modal:close', () => {
     page.locked = false;
 });
 events.on('order:complete', () => {
-    const successTemplate = ensureElement<HTMLTemplateElement>('#success');
     const successClone = cloneTemplate(successTemplate);
+    const success = new Success(successClone, {
+        onClick: () => modal.close()
+    });
 
-    // Находим элементы в клонированном шаблоне
-    const description = successClone.querySelector('.order-success__description');
-    const closeButton = successClone.querySelector('.order-success__close');
+    success.setTotal(appData.basket.total);
 
-    // Устанавливаем сумму из корзины
-    if (description) {
-        description.textContent = `Списано ${appData.basket.total} синапсов`;
-    }
-
-    // Закрытие модалки по кнопке
-    if (closeButton) {
-        closeButton.addEventListener('click', () => {
-            modal.close();
-        });
-    }
-
-    // Открываем модальное окно
     modal.render({
-        content: successClone
+        content: success.render()
     });
 });
 // Получение продуктов с сервера

@@ -28,9 +28,9 @@ export class AppState extends Model<IAppState> {
      * Сохраняет данные заказа (адрес и способ оплаты)
      */
     setOrderData(data: { payment: PaymentMethod; address: string }): void {
-        if (!data.payment || !data.payment) {
-            throw new Error('Payment method is required');
-        }
+        //if (!data.payment || !data.payment) {
+        //    throw new Error('Payment method is required');
+        //}
         
         this.order = {
             ...this.order,
@@ -48,6 +48,10 @@ export class AppState extends Model<IAppState> {
             ...this.order,
             items: [...this.basket.items]
         };
+    }
+    
+    isInBasket(id: string): boolean {
+        return this.basket.items.includes(id);
     }
 
     addToBasket(item: IProduct): void {
