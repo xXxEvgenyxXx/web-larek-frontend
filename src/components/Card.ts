@@ -14,7 +14,6 @@ export interface ICard<T> {
     description?: string;
     image?: string;
     price:number | null;
-    buttonDisabled?: boolean;
 }
 
 export class Card<T> extends Component<ICard<T>> {
