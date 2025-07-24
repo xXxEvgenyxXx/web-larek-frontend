@@ -27,6 +27,8 @@ export class Success extends Component<ISuccess> {
     setTotal(total: number): void {
         this._description.textContent = `Списано ${total} синапсов`;
     }
+
+    // Добавляем метод render(), чтобы получить содержимое
     render(): HTMLElement {
         return this.container;
     }

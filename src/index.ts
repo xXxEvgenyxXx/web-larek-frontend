@@ -113,24 +113,18 @@ events.on('card:select', (item: IProduct) => {
     appData.setPreview(item);
 });
 events.on('preview:changed', (item: IProduct) => {
-    const isInBasket = appData.isInBasket(item.id); // Проверяем наличие в корзине
-
-    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate), {
-        onClick: () => {
-            if (!isInBasket) {
-                appData.addToBasket(item);
-            }
+    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate),{
+        onClick:()=>{
+            appData.addToBasket(item);
         }
     });
-
     modal.render({
         content: card.render({
-            category: item.category,
+            category:item.category,
             title: item.title,
             image: item.image,
-            price: item.price,
+            price:item.price,
             description: item.description,
-            buttonDisabled: isInBasket
         })
     });
 });
