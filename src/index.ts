@@ -113,19 +113,35 @@ events.on('card:select', (item: IProduct) => {
     appData.setPreview(item);
 });
 events.on('preview:changed', (item: IProduct) => {
-    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate),{
-        onClick:()=>{
-            appData.addToBasket(item);
+    const isInBasket = appData.basket.items.includes(item.id);
+    
+    const card = new CatalogItem(cloneTemplate(cardPreviewTemplate), {
+        onClick: () => {
+            if (!isInBasket) {
+                appData.addToBasket(item);
+            }
         }
     });
+
+    const preview = card.render({
+        category: item.category,
+        title: item.title,
+        image: item.image,
+        price: item.price,
+        description: item.description,
+    });
+
+    const cardButton = preview.querySelector('.card__button');
+    if (cardButton) {
+        if (isInBasket) {
+            cardButton.setAttribute('disabled', 'disabled');
+        } else {
+            cardButton.removeAttribute('disabled');
+        }
+    }
+
     modal.render({
-        content: card.render({
-            category:item.category,
-            title: item.title,
-            image: item.image,
-            price:item.price,
-            description: item.description,
-        })
+        content: preview
     });
 });
 events.on('basket:open', () => {
