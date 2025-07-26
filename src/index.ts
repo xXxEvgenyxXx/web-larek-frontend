@@ -117,31 +117,23 @@ events.on('preview:changed', (item: IProduct) => {
     
     const card = new CatalogItem(cloneTemplate(cardPreviewTemplate), {
         onClick: () => {
-            if (!isInBasket) {
+            if (!appData.basket.items.includes(item.id)) {
                 appData.addToBasket(item);
+                modal.close();
             }
         }
     });
 
-    const preview = card.render({
-        category: item.category,
-        title: item.title,
-        image: item.image,
-        price: item.price,
-        description: item.description,
-    });
-
-    const cardButton = preview.querySelector('.card__button');
-    if (cardButton) {
-        if (isInBasket) {
-            cardButton.setAttribute('disabled', 'disabled');
-        } else {
-            cardButton.removeAttribute('disabled');
-        }
-    }
+    card.buttonDisabled = isInBasket;
 
     modal.render({
-        content: preview
+        content: card.render({
+            category: item.category,
+            title: item.title,
+            image: item.image,
+            price: item.price,
+            description: item.description,
+        })
     });
 });
 events.on('basket:open', () => {

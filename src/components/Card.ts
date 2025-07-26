@@ -97,4 +97,10 @@ export class CatalogItem extends Card<CatalogItemStatus> {
     constructor(container: HTMLElement, actions?: ICardActions) {
         super('card', container, actions);
     }
+    set buttonDisabled(value: boolean) {
+        const button = this.container.querySelector('.card__button');
+        if (button) {
+            button.toggleAttribute('disabled', value);
+        }
+    }
 }
