@@ -148,7 +148,6 @@ events.on('basket:change', () => {
     
     basket.items = appData.basket.items.map((id, index) => {
         const item = appData.catalog.find(item => item.id === id);
-        if (!item) return null;
 
         const card = new Card('card', cloneTemplate(cardBasketTemplate), {
             onClick: () => {
@@ -159,7 +158,7 @@ events.on('basket:change', () => {
         console.log(index);
         return card.render({
             ...item,
-            index: index
+            index: index+1
         });
     })
 

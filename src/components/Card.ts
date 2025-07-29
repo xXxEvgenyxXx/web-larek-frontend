@@ -68,9 +68,8 @@ export class Card<T> extends Component<ICard<T>> {
     set index(value: number) {
         this._currentIndex = value;
         if (this._index) {
-            this._index.textContent = `${this._currentIndex+1}`;
-            console.log('this.index.textcontent:')
-            console.log(this._index.textContent);
+            this._index.textContent = `${this._currentIndex}`;
+            console.log(this._index.textContent)
         }
     }
 
