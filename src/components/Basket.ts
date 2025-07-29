@@ -1,7 +1,6 @@
 import { Component } from "./base/Component";
 import {createElement, ensureElement, formatNumber} from "./../utils/utils";
 import { EventEmitter } from "./base/events";
-import { IProduct } from "../types";
 
 interface IBasketView {
     items: HTMLElement[];
@@ -17,7 +16,7 @@ export class Basket extends Component<IBasketView> {
         super(container);
 
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
-        this._total = this.container.querySelector('.basket__price');
+        this._total = ensureElement<HTMLElement>('.basket__price', this.container);
         this._button = this.container.querySelector('.basket__button');
 
         if (this._button) {
@@ -27,17 +26,9 @@ export class Basket extends Component<IBasketView> {
         }
 
         this.items = [];
-        console.log(this.items);
     }
 
     set items(items: HTMLElement[]) {
-        let counter = 1;
-        items.forEach(item => {
-            console.log(`item ${counter}:`)
-            console.log(item);
-            item.querySelector('.basket__item-index').textContent = `${counter}`
-            counter+=1;
-        });
         if (items.length) {
             this._list.replaceChildren(...items);
         } else {

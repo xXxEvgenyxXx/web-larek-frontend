@@ -145,20 +145,25 @@ events.on('basket:open', () => {
 });
 events.on('basket:change', () => {
     page.counter = appData.basket.items.length;
-    basket.items = appData.basket.items.map(id => {
-    const item = appData.catalog.find(item => item.id === id);
+    
+    basket.items = appData.basket.items.map((id, index) => {
+        const item = appData.catalog.find(item => item.id === id);
+        if (!item) return null;
 
-    const card = new Card('card', cloneTemplate(cardBasketTemplate), {
-      onClick: () => {
-        appData.removeFromBasket(item);
-        basket.total = appData.basket.total;
-      }
+        const card = new Card('card', cloneTemplate(cardBasketTemplate), {
+            onClick: () => {
+                appData.removeFromBasket(item);
+                events.emit('basket:change');
+            }
+        });
+        console.log(index);
+        return card.render({
+            ...item,
+            index: index
+        });
     })
 
-    return card.render(item);
-  })
-
-  basket.total = appData.basket.total;
+    basket.total = appData.basket.total;
 });
 
 
