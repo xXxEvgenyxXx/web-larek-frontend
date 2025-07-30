@@ -10,7 +10,7 @@ interface IBasketView {
 export class Basket extends Component<IBasketView> {
     protected _list: HTMLElement;
     protected _total: HTMLElement;
-    protected _button: HTMLButtonElement; // Изменено на HTMLButtonElement
+    protected _button: HTMLButtonElement;
 
     constructor(container: HTMLElement, protected events: EventEmitter) {
         super(container);
@@ -19,13 +19,13 @@ export class Basket extends Component<IBasketView> {
         this._total = ensureElement<HTMLElement>('.basket__price', this.container);
         this._button = ensureElement<HTMLButtonElement>('.basket__button', this.container);
 
-        // Добавляем обработчик клика
         this._button.addEventListener('click', () => {
             events.emit('order:open');
         });
 
-        // Инициализируем пустой список
+        // Инициализируем с пустыми данными — сумма должна быть 0
         this.items = [];
+        this.total = 0; // Явно устанавливаем 0 при инициализации
     }
 
     set items(items: HTMLElement[]) {
@@ -38,11 +38,11 @@ export class Basket extends Component<IBasketView> {
                 })
             );
         }
-        // Обновляем состояние кнопки
+        // Блокируем кнопку, если корзина пуста
         this._button.disabled = items.length === 0;
     }
 
     set total(total: number) {
-        this.setText(this._total, formatNumber(total));
+        this.setText(this._total, `${formatNumber(total || 0)} синапсов`);
     }
 }
