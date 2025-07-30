@@ -1,8 +1,5 @@
-//import _ from "lodash";
-//import {dayjs, formatNumber} from "../utils/utils";
-
-import {Model} from "./base/Model";
-import {FormErrors, IAppState, IProduct, IOrder, IOrderForm,IBasket,PaymentMethod} from "../types";
+import { Model } from "./base/Model";
+import { FormErrors, IAppState, IProduct, IOrder, IOrderForm, IBasket, PaymentMethod } from "../types";
 
 export type CatalogChangeEvent = {
     catalog: IProduct[]
@@ -16,22 +13,16 @@ export class AppState extends Model<IAppState> {
     catalog: IProduct[];
     loading: boolean;
     order: IOrder = {
+        payment: 'online', // добавлено по умолчанию
+        address: '',
         email: '',
         phone: '',
         items: []
     };
     preview: string | null;
     formErrors: FormErrors = {};
-    items: IProduct[] = [];
 
-    /**
-     * Сохраняет данные заказа (адрес и способ оплаты)
-     */
     setOrderData(data: { payment: PaymentMethod; address: string }): void {
-        //if (!data.payment || !data.payment) {
-        //    throw new Error('Payment method is required');
-        //}
-        
         this.order = {
             ...this.order,
             payment: data.payment,
@@ -40,16 +31,13 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('order:updated', this.order);
     }
 
-    /**
-     * Получает текущие данные заказа
-     */
     getOrderData(): IOrder {
         return {
             ...this.order,
             items: [...this.basket.items]
         };
     }
-    
+
     isInBasket(id: string): boolean {
         return this.basket.items.includes(id);
     }
@@ -66,13 +54,6 @@ export class AppState extends Model<IAppState> {
         this.emitChanges('basket:change', this.basket);
     }
 
-    getTotal(): number {
-        return this.basket.items.reduce((total, itemId) => {
-            const item = this.catalog.find(it => it.id === itemId);
-            return total + (item?.price || 0);
-        }, 0);
-    }
-
     setCatalog(items: IProduct[]): void {
         this.catalog = items;
         this.emitChanges('items:changed', { catalog: this.catalog });
@@ -86,10 +67,7 @@ export class AppState extends Model<IAppState> {
         } else {
             this.order[field] = value;
         }
-
-        if (this.validateOrder()) {
-            this.emitChanges('order:ready', this.order);
-        }
+        this.validateOrder();
     }
 
     setPreview(item: IProduct): void {
@@ -99,24 +77,38 @@ export class AppState extends Model<IAppState> {
 
     validateOrder(): boolean {
         const errors: typeof this.formErrors = {};
-        
+
+        // Валидация email
         if (!this.order.email) {
-            errors.email = 'Необходимо указать email';
+            errors.email = 'Введите корректный email';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.order.email)) {
+            errors.email = 'Введите корректный email';
         }
+
+        // Валидация телефона
         if (!this.order.phone) {
-            errors.phone = 'Необходимо указать телефон';
+            errors.phone = 'Введите корректный телефон';
+        } else if (!/^[\d\-\+\(\)\s]+$/.test(this.order.phone)) {
+            errors.phone = 'Введите корректный телефон';
+        } else if (this.order.phone.replace(/\D/g, '').length < 10) {
+            errors.phone = 'Введите корректный телефон';
         }
-        if (this.order.payment && !this.order.address) {
+
+        // Валидация адреса
+        if (!this.order.address) {
             errors.address = 'Необходимо указать адрес';
         }
-        
+
         this.formErrors = errors;
         this.emitChanges('formErrors:change', this.formErrors);
+
         return Object.keys(errors).length === 0;
     }
 
     resetOrder(): void {
         this.order = {
+            payment: 'online',
+            address: '',
             email: '',
             phone: '',
             items: []
@@ -125,6 +117,7 @@ export class AppState extends Model<IAppState> {
             items: [],
             total: 0
         };
+        this.formErrors = {};
         this.emitChanges('order:reset');
     }
 }
