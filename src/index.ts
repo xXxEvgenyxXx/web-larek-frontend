@@ -155,10 +155,9 @@ events.on('basket:change', () => {
                 events.emit('basket:change');
             }
         });
-        console.log(index);
         return card.render({
             ...item,
-            index: index+1
+            index:index+1
         });
     })
 

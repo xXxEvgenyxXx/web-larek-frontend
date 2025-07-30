@@ -22,7 +22,6 @@ export class Card<T> extends Component<ICard<T>> {
     protected _price?: HTMLElement;
     protected _button?: HTMLButtonElement;
     protected _index?: HTMLElement;
-    private _currentIndex: number = 1;
 
     constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions) {
         super(container);
@@ -31,7 +30,7 @@ export class Card<T> extends Component<ICard<T>> {
         this._description = container.querySelector(`.${blockName}__text`);
         this._category = container.querySelector(`.${blockName}__category`);
         this._price = ensureElement<HTMLElement>(`.${blockName}__price`, container);
-        this._index = ensureElement<HTMLElement>(`.basket__item-index`);
+        this._index = container.querySelector('.basket__item-index');
         
         if (actions?.onClick) {
             if (this._button) {
@@ -66,23 +65,19 @@ export class Card<T> extends Component<ICard<T>> {
         }
     }
     set index(value: number) {
-        this._currentIndex = value;
+        console.log(`value: ${value}`);
+        console.log(this._index);
         if (this._index) {
-            this._index.textContent = `${this._currentIndex}`;
-            console.log(this._index.textContent)
+            this._index.textContent = `${value}`;
         }
-    }
-
-    get index(): number {
-        return this._currentIndex;
     }
 
     set description(value: string | string[]) {
         this.setText(this._description, value);
     }
     render(data?: Partial<ICard<T>> & { index?: number }): HTMLElement {
-        if (data?.index !== undefined) {
-            this.index = data.index;
+        if (data?.index !== undefined && this._index) {
+            this._index.textContent = String(data.index);
         }
         return super.render(data);
     }
